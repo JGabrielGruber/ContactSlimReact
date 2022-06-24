@@ -1,0 +1,36 @@
+version: "3.9"
+
+volumes:
+  db:
+
+services:
+  db:
+    container_name: db
+    image: postgres
+    volumes:
+      - db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+  api:
+    container_name: api
+    build: ./api
+    command: composer serve
+    volumes:
+      - ./api:/code
+    environment:
+      - POSTGRES_NAME=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    depends_on:
+      - db
+  nginx:
+    container_name: nginx
+    build: ./nginx
+    ports:
+      - 3000:80
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+    depends_on:
+      - api
